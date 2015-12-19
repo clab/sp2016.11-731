@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# check for the existence of the upstream remote
+git remote | grep upstream
+if [ $? -ne 0 ] ; then
+  git remote add upstream git@github.com:clab/sp2015.11-731.git
+fi
+
+# pull any changes down
+git fetch upstream
+if [ $? -ne 0 ] ; then
+  echo git fetch command failed! 1>&2
+  exit 1
+fi
+
+# merge changes into master
+git merge upstream/master -m 'grab new assignments'
+
+# push to github
+git push
+

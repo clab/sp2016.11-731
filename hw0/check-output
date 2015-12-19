@@ -1,0 +1,63 @@
+#!/usr/bin/env python
+import yaml
+import sys
+import os
+import csv
+import codecs
+
+sys.stdout = codecs.getwriter('utf8')(sys.stdout)
+sys.stderr = codecs.getwriter('utf8')(sys.stderr)
+
+codefile = os.path.dirname(os.path.realpath(__file__)) + '/data/iso-639-3_20120816.tab'
+r = csv.reader(open(codefile,'rb'), delimiter='\t')
+lc = {}
+for row in r:
+    langname = unicode(row[6], 'utf-8')
+    for i in xrange(4):
+        if row[i] != '':
+            lc[row[i]] = langname
+
+try:
+    y = yaml.load(sys.stdin)
+    (first, last) = (y["name"]["first"], y["name"]["last"])
+    codes = y["languages"]
+    email = y["email"]
+    if type(codes) == type(''): codes = [codes]
+    lnames = []
+    for code in codes:
+        if code in lc:
+            lnames.append(lc[code])
+        else:
+            sys.stderr.write("I don't know language code '%s'\n" % code)
+            raise Exception()
+    leaderboard = y["leaderboard"]
+    if email is None:
+      sys.stderr.write("Bad value for email\n")
+      raise Exception()
+    if leaderboard is None:
+      sys.stderr.write("Bad value for leaderboard\n")
+      raise Exception()
+    if type(leaderboard) != type(''):
+      sys.stderr.write("Bad value for leaderboard!\n")
+      raise Exception()
+    if len(leaderboard) > 20 or len(leaderboard) == 0:
+      sys.stderr.write("Invalid length for leadboard\n")
+      raise Exception()
+    if leaderboard == 'ProfDyer':
+      sys.stderr.write("You are not ProfDyer!\n")
+      raise Exception()
+    sys.stdout.write("*******************************************************\n")
+    sys.stdout.write("       NAME: %s %s\n" % (first, last))
+    sys.stdout.write("      EMAIL: %s\n" % email)
+    sys.stdout.write("LEADERBOARD: %s\n" % leaderboard)
+    sys.stdout.write("  LANGUAGES: %s\n" % ', '.join(lnames))
+    sys.stdout.write("*******************************************************\n")
+    sys.stdout.write("\nIf this looks correct then check in your output:\n  git add output.txt\n  git commit -m 'my hw0 assignment output'\n  git push\n\n")
+
+except yaml.scanner.ScannerError as e:
+    sys.stderr.write("Malformed input!\nMessage: %s\n" % str(e))
+except KeyError as e:
+    sys.stderr.write("Malformed input - missing key: %s\n" % str(e))
+except:
+    print "Unexpected error:", sys.exc_info()[0]
+

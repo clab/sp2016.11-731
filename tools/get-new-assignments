@@ -3,7 +3,7 @@
 # check for the existence of the upstream remote
 git remote | grep upstream
 if [ $? -ne 0 ] ; then
-  git remote add upstream git@github.com:clab/sp2015.11-731.git
+  git remote add upstream git@github.com:clab/sp2016.11-731.git
 fi
 
 # pull any changes down

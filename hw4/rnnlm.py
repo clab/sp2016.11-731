@@ -29,7 +29,7 @@ class RNNLanguageModel:
         for word in sent[1:]:
             vec += lookup(self.m["lookup"], int(word))
         vec /= len(sent)
-        init = [tanh(vec), vec]
+        init = [vec, tanh(vec)]
         init_state = self.builder.initial_state(init)
 
         R = parameter(self.m["R"])
